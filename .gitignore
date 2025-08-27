@@ -1,0 +1,10 @@
+# Archivo .gitignore
+# Ejemplo de archivo .gitignore
+# Ignora la carpeta del entorno virtual de Python
+venv/
+
+# Ignora los archivos de configuración de VS Code
+.vscode/
+
+# Ignora las variables de entorno
+.env
