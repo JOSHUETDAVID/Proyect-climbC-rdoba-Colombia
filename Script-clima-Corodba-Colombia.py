@@ -53,7 +53,7 @@ def obtener_datos_de_cache(municipio_nombre):
     try:
         df_cache= pd.read_csv(cache_file)
         df_cache['timestamp'] = pd.to_datetime(df_cache['timestamp'])
-        cached_data = df_cache[df_cache['municipio'].str.lower() == municipio_nombre.lower()]
+        cached_data = df_cache[df_cache['Municipio'].str.lower() == municipio_nombre.lower()]
         if not cached_data.empty:
             cached_time = cached_data.iloc[0]['timestamp']
             if (datetime.now() - cached_time) < timedelta(hours=cache_expiration_hours):
@@ -62,3 +62,21 @@ def obtener_datos_de_cache(municipio_nombre):
     except(pd.errors.EmptyDataError, KeyError) as e:
         print(f"Erro al leero o procesar datos de caché. se procedera con la API")
     return None
+
+def obtener_datos_en_cache (data) :
+    """
+     Guardar los datos procesados en la cache 
+    """
+    df_new_data = pd.DataFrame([data])
+    if os.path.exists(cache_file):
+        df_cache = pd.read_csv(cache_file)
+        df_cache = df_cache [df_cache['Municipio'].str.lower() != data['Municipio'].lower()]
+        df_updated = pd.concat([df_cache, df_new_data], ignore_index=True)
+    else :
+        df_updated = df_new_data
+    
+    df_updated['timestamp'] = datetime.now()
+    df_updated.to_csv(cache_file, index=False)
+    
+
+            
