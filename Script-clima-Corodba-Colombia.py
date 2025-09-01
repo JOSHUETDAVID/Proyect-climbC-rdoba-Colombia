@@ -1,5 +1,6 @@
 from math import e
 import os
+from urllib import response
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
@@ -31,8 +32,7 @@ municipios_cordoba = [
     {"nombre": "Planeta Rica", "lat": 8.361667, "lon": -75.584167},
 ]
 
-print(municipios_cordoba[2])
-
+# Configuración de la API
 UNITS = "metric"
 LANG = "es"
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
@@ -77,6 +77,34 @@ def obtener_datos_en_cache (data) :
     
     df_updated['timestamp'] = datetime.now()
     df_updated.to_csv(cache_file, index=False)
-    
+    return df_updated
 
+# --- 2. Recolección de Datos de la API con Lógica de Caché ---
+print("Iniciando recoleccion de datos meteorologicos para Cordoba...")
+
+all_weather_data = []
+
+for municipio in municipios_cordoba:
+    # 1. obtener los datos de la cache 
+    datos_cache = obtener_datos_de_cache(municipio['nombre'])
+    if datos_cache:
+        all_weather_data.append(datos_cache)
+        print(f"Datos de {municipio['nombre']} obtenidos de la cache.")
+        continue
+
+# 2. Si no están en la caché, realizar la llamada a la API
+    print(f"NO hay datos en la cache para {municipio['nombre']}: Realizando llamda a la API")
+    
+    params= {
+        "lat": municipio["lat"],
+        "lon":municipio["lon"],
+        "appid": API_KEY,
+        "units": UNITS,
+        "lang": LANG
+    }
+    
+    try:
+        response = requests.get(BASE_URL, params=params)
+        response.raise_for_status()
+        data = response.json()
             
